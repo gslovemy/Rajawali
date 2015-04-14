@@ -214,6 +214,10 @@ public class Camera extends ATransformable3D {
 		}		
 	}
 
+	public void setProjectionMatrix(Matrix4 from) {
+		mProjMatrix.setAll(from);
+	}
+
 	public Matrix4 getProjectionMatrix() {
 		synchronized (mFrustumLock) {
 			return mProjMatrix;

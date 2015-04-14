@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="RajawaliCardboardView">
+        <attr name="frameRate" />
+        <attr name="renderMode" />
+        <attr name="antiAliasingType"/>
+        <attr name="isTransparent" />
+        <attr name="bitsRed" />
+        <attr name="bitsGreen" />
+        <attr name="bitsBlue" />
+        <attr name="bitsAlpha"/>
+        <attr name="bitsDepth" />
+        <attr name="multiSampleCount" />
+    </declare-styleable>
+
+</resources>

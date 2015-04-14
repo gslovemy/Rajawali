@@ -102,7 +102,7 @@ public abstract class RajawaliRenderer implements IRajawaliSurfaceRenderer {
     private boolean mSceneCachingEnabled; //This applies to all scenes
     protected boolean mSceneInitialized; //This applies to all scenes
     protected boolean mEnableDepthBuffer = true; // Do we use the depth buffer?
-    private RenderTarget mCurrentRenderTarget;
+    protected RenderTarget mCurrentRenderTarget;
     private IRajawaliSurface.ANTI_ALIASING_CONFIG mAntiAliasingConfig;
 
     protected final List<RajawaliScene> mScenes; //List of all scenes this renderer is aware of.
