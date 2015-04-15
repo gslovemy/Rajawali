@@ -31,7 +31,7 @@ public abstract class Wallpaper extends WallpaperService {
         protected Context mContext;
         protected IRajawaliSurfaceRenderer mRenderer;
         protected WallpaperSurfaceView mSurfaceView;
-        protected IRajawaliSurface.ANTI_ALIASING_CONFIG mAntiAliasingConfig;
+        protected IRajawaliSurface.ANTI_ALIASING_MODE mAntiAliasingConfig;
         protected float mDefaultPreviewOffsetX;
 
         class WallpaperSurfaceView extends RajawaliSurfaceView {
@@ -51,11 +51,11 @@ public abstract class Wallpaper extends WallpaperService {
         }
 
         public WallpaperEngine(Context context, IRajawaliSurfaceRenderer renderer) {
-            this(context, renderer, IRajawaliSurface.ANTI_ALIASING_CONFIG.NONE);
+            this(context, renderer, IRajawaliSurface.ANTI_ALIASING_MODE.NONE);
         }
 
         public WallpaperEngine(Context context, IRajawaliSurfaceRenderer renderer,
-                               IRajawaliSurface.ANTI_ALIASING_CONFIG antiAliasingConfig) {
+                               IRajawaliSurface.ANTI_ALIASING_MODE antiAliasingConfig) {
             mContext = context;
             mRenderer = renderer;
             mAntiAliasingConfig = antiAliasingConfig;

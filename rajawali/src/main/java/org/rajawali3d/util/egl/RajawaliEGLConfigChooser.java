@@ -23,13 +23,13 @@ public class RajawaliEGLConfigChooser implements GLSurfaceView.EGLConfigChooser 
 
     private final int[] mConfigSpec;
 
-    private final IRajawaliSurface.ANTI_ALIASING_CONFIG mAntiAliasingConfig;
+    private final IRajawaliSurface.ANTI_ALIASING_MODE mAntiAliasingConfig;
 
-    public RajawaliEGLConfigChooser(int glMajorVersion, @NonNull IRajawaliSurface.ANTI_ALIASING_CONFIG antiAliasingConfig,
+    public RajawaliEGLConfigChooser(int glMajorVersion, @NonNull IRajawaliSurface.ANTI_ALIASING_MODE antiAliasingConfig,
                                     int sampleCount, int bitsRed, int bitsGreen, int bitsBlue, int bitsAlpha, int bitsDepth) {
         mAntiAliasingConfig = antiAliasingConfig;
 
-        if (mAntiAliasingConfig.equals(IRajawaliSurface.ANTI_ALIASING_CONFIG.MULTISAMPLING)) {
+        if (mAntiAliasingConfig.equals(IRajawaliSurface.ANTI_ALIASING_MODE.MULTISAMPLING)) {
             mConfigSpec = new int[]{
                 EGL10.EGL_RED_SIZE, bitsRed,
                 EGL10.EGL_GREEN_SIZE, bitsGreen,
@@ -38,12 +38,12 @@ public class RajawaliEGLConfigChooser implements GLSurfaceView.EGLConfigChooser 
                 EGL10.EGL_DEPTH_SIZE, bitsDepth,
                 EGL10.EGL_RENDERABLE_TYPE, EGL14.EGL_OPENGL_ES2_BIT,
                 EGL10.EGL_SAMPLE_BUFFERS,
-                antiAliasingConfig.equals(IRajawaliSurface.ANTI_ALIASING_CONFIG.MULTISAMPLING) ? 1 : 0, /* Do we use sample buffers */
+                antiAliasingConfig.equals(IRajawaliSurface.ANTI_ALIASING_MODE.MULTISAMPLING) ? 1 : 0, /* Do we use sample buffers */
                 EGL10.EGL_SAMPLES,
-                antiAliasingConfig.equals(IRajawaliSurface.ANTI_ALIASING_CONFIG.MULTISAMPLING) ? sampleCount : 0, /* Sample count */
+                antiAliasingConfig.equals(IRajawaliSurface.ANTI_ALIASING_MODE.MULTISAMPLING) ? sampleCount : 0, /* Sample count */
                 EGL10.EGL_NONE
             };
-        } else if (mAntiAliasingConfig.equals(IRajawaliSurface.ANTI_ALIASING_CONFIG.COVERAGE)) {
+        } else if (mAntiAliasingConfig.equals(IRajawaliSurface.ANTI_ALIASING_MODE.COVERAGE)) {
             mConfigSpec = new int[]{
                 EGL10.EGL_RED_SIZE, bitsRed,
                 EGL10.EGL_GREEN_SIZE, bitsGreen,
@@ -77,7 +77,7 @@ public class RajawaliEGLConfigChooser implements GLSurfaceView.EGLConfigChooser 
         mConfigSpec[11] = EGLExt.EGL_OPENGL_ES3_BIT_KHR;
     }
 
-    public IRajawaliSurface.ANTI_ALIASING_CONFIG getAntiAliasingConfig() {
+    public IRajawaliSurface.ANTI_ALIASING_MODE getAntiAliasingConfig() {
         return mAntiAliasingConfig;
     }
 

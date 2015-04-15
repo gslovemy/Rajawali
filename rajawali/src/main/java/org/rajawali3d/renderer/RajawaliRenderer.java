@@ -103,7 +103,7 @@ public abstract class RajawaliRenderer implements IRajawaliSurfaceRenderer {
     protected boolean mSceneInitialized; //This applies to all scenes
     protected boolean mEnableDepthBuffer = true; // Do we use the depth buffer?
     protected RenderTarget mCurrentRenderTarget;
-    private IRajawaliSurface.ANTI_ALIASING_CONFIG mAntiAliasingConfig;
+    private IRajawaliSurface.ANTI_ALIASING_MODE mAntiAliasingConfig;
 
     protected final List<RajawaliScene> mScenes; //List of all scenes this renderer is aware of.
     protected final List<RenderTarget> mRenderTargets; //List of all render targets this renderer is aware of.
@@ -220,7 +220,7 @@ public abstract class RajawaliRenderer implements IRajawaliSurfaceRenderer {
     }
 
     @Override
-    public void setAntiAliasingMode(IRajawaliSurface.ANTI_ALIASING_CONFIG config) {
+    public void setAntiAliasingMode(IRajawaliSurface.ANTI_ALIASING_MODE config) {
         mAntiAliasingConfig = config;
         synchronized (mScenes) {
             for (int i = 0, j = mScenes.size(); i < j; ++i) {

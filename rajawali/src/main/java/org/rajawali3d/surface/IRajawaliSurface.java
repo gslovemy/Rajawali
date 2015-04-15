@@ -13,10 +13,10 @@ public interface IRajawaliSurface {
     /**
      * Enum of available anti-aliasing configurations.
      */
-    public static enum ANTI_ALIASING_CONFIG {
+    public static enum ANTI_ALIASING_MODE {
         NONE, MULTISAMPLING, COVERAGE;
 
-        public static ANTI_ALIASING_CONFIG fromInteger(int i) {
+        public static ANTI_ALIASING_MODE fromInteger(int i) {
             switch (i) {
                 case 0:
                     return NONE;
@@ -72,9 +72,9 @@ public interface IRajawaliSurface {
      * Called to enable/disable multisampling on this surface.
      * Must be called before {@link #setSurfaceRenderer(IRajawaliSurfaceRenderer)}.
      *
-     * @param config {@link ANTI_ALIASING_CONFIG} The desired anti aliasing configuration.
+     * @param mode {@link ANTI_ALIASING_MODE} The desired anti aliasing configuration.
      */
-    public void setAntiAliasingMode(ANTI_ALIASING_CONFIG config);
+    public void setAntiAliasingMode(ANTI_ALIASING_MODE mode);
 
     /**
      * Sets the sample count to use. Only applies if multisample antialiasing is active.

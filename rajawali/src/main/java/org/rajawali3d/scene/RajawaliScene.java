@@ -92,7 +92,7 @@ public class RajawaliScene {
 	private volatile boolean mLightsDirty;
 	protected ColorPickerInfo mPickerInfo;
 	protected boolean mReloadPickerInfo;
-	protected IRajawaliSurface.ANTI_ALIASING_CONFIG mAntiAliasingConfig;
+	protected IRajawaliSurface.ANTI_ALIASING_MODE mAntiAliasingConfig;
 	protected boolean mEnableDepthBuffer = true;
 	protected boolean mAlwaysClearColorBuffer = true;
 	private ShadowMapMaterial mShadowMapMaterial;
@@ -153,7 +153,7 @@ public class RajawaliScene {
 		mCamera.setZ(mEyeZ);
 		mCameras.add(mCamera);
 
-        mAntiAliasingConfig = IRajawaliSurface.ANTI_ALIASING_CONFIG.NONE; // Default to none
+        mAntiAliasingConfig = IRajawaliSurface.ANTI_ALIASING_MODE.NONE; // Default to none
 	}
 	
 	public RajawaliScene(RajawaliRenderer renderer, GRAPH_TYPE type) {
@@ -1019,7 +1019,7 @@ public class RajawaliScene {
 			GLES20.glDepthMask(true);
 			GLES20.glClearDepthf(1.0f);
 		}
-		if (mAntiAliasingConfig.equals(IRajawaliSurface.ANTI_ALIASING_CONFIG.COVERAGE)) {
+		if (mAntiAliasingConfig.equals(IRajawaliSurface.ANTI_ALIASING_MODE.COVERAGE)) {
 			clearMask |= GL_COVERAGE_BUFFER_BIT_NV;
 		}
 
@@ -1420,7 +1420,7 @@ public class RajawaliScene {
 		mCamera.setProjectionMatrix(width, height);
 	}
 	
-	public void setAntiAliasingConfig(IRajawaliSurface.ANTI_ALIASING_CONFIG config) {
+	public void setAntiAliasingConfig(IRajawaliSurface.ANTI_ALIASING_MODE config) {
 		mAntiAliasingConfig = config;
 	}
 	

@@ -28,9 +28,9 @@ public abstract class RajawaliWearActivity extends Activity implements IRajawali
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(getLayoutID());
         initializeViewContent();
         if (mRajawaliSurfaceView == null) throw new RuntimeException("mCardboardView must not be null after initializeViewContent() returns!");
+        addContentView(mRajawaliSurfaceView, null);
 
         // Create the renderer
         mRenderer = createRenderer();

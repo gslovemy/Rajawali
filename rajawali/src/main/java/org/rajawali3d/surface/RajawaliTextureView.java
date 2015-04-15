@@ -52,7 +52,7 @@ public class RajawaliTextureView extends TextureView implements IRajawaliSurface
 
     protected double mFrameRate = 60.0;
     protected int mRenderMode = RENDERMODE_WHEN_DIRTY;
-    protected ANTI_ALIASING_CONFIG mAntiAliasingConfig = ANTI_ALIASING_CONFIG.NONE;
+    protected ANTI_ALIASING_MODE mAntiAliasingConfig = ANTI_ALIASING_MODE.NONE;
     protected int mBitsRed = 5;
     protected int mBitsGreen = 6;
     protected int mBitsBlue = 5;
@@ -103,7 +103,7 @@ public class RajawaliTextureView extends TextureView implements IRajawaliSurface
             } else if (attr == R.styleable.RajawaliTextureView_renderMode) {
                 mRenderMode = array.getInt(i, RENDERMODE_WHEN_DIRTY);
             } else if (attr == R.styleable.RajawaliTextureView_antiAliasingType) {
-                mAntiAliasingConfig = ANTI_ALIASING_CONFIG.fromInteger(array.getInteger(i, ANTI_ALIASING_CONFIG.NONE.ordinal()));
+                mAntiAliasingConfig = ANTI_ALIASING_MODE.fromInteger(array.getInteger(i, ANTI_ALIASING_MODE.NONE.ordinal()));
             } else if (attr == R.styleable.RajawaliTextureView_bitsRed) {
                 mBitsRed = array.getInteger(i, 5);
             } else if (attr == R.styleable.RajawaliTextureView_bitsGreen) {
@@ -250,8 +250,8 @@ public class RajawaliTextureView extends TextureView implements IRajawaliSurface
     }
 
     @Override
-    public void setAntiAliasingMode(ANTI_ALIASING_CONFIG config) {
-        mAntiAliasingConfig = config;
+    public void setAntiAliasingMode(ANTI_ALIASING_MODE mode) {
+        mAntiAliasingConfig = mode;
     }
 
     @Override

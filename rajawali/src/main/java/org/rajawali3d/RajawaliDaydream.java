@@ -80,7 +80,7 @@ public abstract class RajawaliDaydream extends DreamService implements IRajawali
         return 0;
     }
 
-    protected void setAntiAliasingConfig(IRajawaliSurface.ANTI_ALIASING_CONFIG config) {
+    protected void setAntiAliasingConfig(IRajawaliSurface.ANTI_ALIASING_MODE config) {
 		mSurfaceView.setAntiAliasingMode(config);
 	}
 

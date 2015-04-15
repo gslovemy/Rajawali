@@ -31,7 +31,7 @@ public class RajawaliCardboardView extends CardboardView implements IRajawaliSur
 
     protected double mFrameRate = 60.0;
     protected int mRenderMode = IRajawaliSurface.RENDERMODE_WHEN_DIRTY;
-    protected ANTI_ALIASING_CONFIG mAntiAliasingConfig = ANTI_ALIASING_CONFIG.NONE;
+    protected ANTI_ALIASING_MODE mAntiAliasingConfig = ANTI_ALIASING_MODE.NONE;
     protected boolean mIsTransparent = false;
     protected int mBitsRed = 5;
     protected int mBitsGreen = 6;
@@ -61,7 +61,7 @@ public class RajawaliCardboardView extends CardboardView implements IRajawaliSur
             } else if (attr == R.styleable.RajawaliCardboardView_renderMode) {
                 mRenderMode = array.getInt(i, IRajawaliSurface.RENDERMODE_WHEN_DIRTY);
             } else if (attr == R.styleable.RajawaliCardboardView_antiAliasingType) {
-                mAntiAliasingConfig = ANTI_ALIASING_CONFIG.fromInteger(array.getInteger(i, ANTI_ALIASING_CONFIG.NONE.ordinal()));
+                mAntiAliasingConfig = ANTI_ALIASING_MODE.fromInteger(array.getInteger(i, ANTI_ALIASING_MODE.NONE.ordinal()));
             } else if (attr == R.styleable.RajawaliCardboardView_multiSampleCount) {
                 mMultiSampleCount = array.getInteger(i, 0);
             } else if (attr == R.styleable.RajawaliCardboardView_isTransparent) {
@@ -167,8 +167,8 @@ public class RajawaliCardboardView extends CardboardView implements IRajawaliSur
     }
 
     @Override
-    public void setAntiAliasingMode(ANTI_ALIASING_CONFIG config) {
-        mAntiAliasingConfig = config;
+    public void setAntiAliasingMode(ANTI_ALIASING_MODE mode) {
+        mAntiAliasingConfig = mode;
     }
 
     @Override
