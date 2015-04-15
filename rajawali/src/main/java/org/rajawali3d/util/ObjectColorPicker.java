@@ -70,6 +70,12 @@ public class ObjectColorPicker implements IObjectPicker {
 	public void unregisterObject(Object3D object) {
 		if (mObjectLookup.contains(object)) {
 			mObjectLookup.remove(object);
+			mColorIndex = 0;
+			final int count = mObjectLookup.size();
+			for (int i = 0; i < count; ++i) {
+				mObjectLookup.get(i).setPickingColor(mColorIndex);
+				++mColorIndex;
+			}
 		}
 	}
 
