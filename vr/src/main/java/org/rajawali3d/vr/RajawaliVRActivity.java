@@ -1,7 +1,6 @@
 package org.rajawali3d.vr;
 
 import android.os.Bundle;
-import android.os.PersistableBundle;
 
 import com.google.vrtoolkit.cardboard.CardboardActivity;
 
@@ -39,8 +38,8 @@ public abstract class RajawaliVRActivity extends CardboardActivity implements IR
     protected abstract void onBeforeApplyRenderer();
 
     @Override
-    public void onCreate(Bundle savedInstanceState, PersistableBundle persistentState) {
-        super.onCreate(savedInstanceState, persistentState);
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
         setContentView(getLayoutID());
         initializeViewContent();
         if (mCardboardView == null) throw new RuntimeException("mCardboardView must not be null after initializeViewContent() returns!");
@@ -50,6 +49,18 @@ public abstract class RajawaliVRActivity extends CardboardActivity implements IR
         //TODO: We should probably set the frame rate to 0 and force RENDER_WHEN_DIRTY here because of how the Cardboard API works.
         onBeforeApplyRenderer();
         applyRenderer();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        mCardboardView.onResume();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        mCardboardView.onPause();
     }
 
     /**
