@@ -344,9 +344,19 @@ public abstract class RajawaliRenderer implements IRajawaliSurfaceRenderer {
         setViewPort(wViewport, hViewport);
 
         if (!mSceneInitialized) {
-            getCurrentScene().resetGLState();
+            // Perform the frame tasks so any additions are registered.
+            RajLog.i("Performing renderer frame tasks.");
+            performFrameTasks();
+            synchronized (mScenes) {
+                for (RajawaliScene scene : mScenes) {
+                    // Initialize every scene
+                    RajLog.i("Initializing scene: " + scene);
+                    scene.resetGLState();
+                    scene.initScene();
+                }
+            }
+            RajLog.i("Initializing renderer scene");
             initScene();
-            getCurrentScene().initScene();
         }
 
         if (!mSceneCachingEnabled) {

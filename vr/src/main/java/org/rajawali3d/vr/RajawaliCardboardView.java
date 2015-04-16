@@ -8,6 +8,9 @@ import android.util.AttributeSet;
 import android.view.View;
 
 import com.google.vrtoolkit.cardboard.CardboardView;
+import com.google.vrtoolkit.cardboard.Eye;
+import com.google.vrtoolkit.cardboard.HeadTransform;
+import com.google.vrtoolkit.cardboard.Viewport;
 
 import org.rajawali3d.surface.IRajawaliSurface;
 import org.rajawali3d.surface.IRajawaliSurfaceRenderer;
@@ -179,6 +182,7 @@ public class RajawaliCardboardView extends CardboardView implements IRajawaliSur
     @Override
     public void setSurfaceRenderer(IRajawaliSurfaceRenderer renderer) throws IllegalStateException {
         if (mRendererDelegate != null) throw new IllegalStateException("A renderer has already been set for this view.");
+        if (!(renderer instanceof RajawaliVRRenderer)) throw new IllegalArgumentException("Renderer must be a subclass of RajawaliVRRenderer.");
         initialize();
         final RendererDelegate delegate = new RajawaliCardboardView.RendererDelegate(renderer, this);
         super.setRenderer(delegate);
@@ -198,13 +202,13 @@ public class RajawaliCardboardView extends CardboardView implements IRajawaliSur
      *
      * @author Jared Woolston (jwoolston@tenkiv.com)
      */
-    private static class RendererDelegate implements GLSurfaceView.Renderer {
+    private static class RendererDelegate implements CardboardView.Renderer {
 
         final RajawaliCardboardView mRajawaliCardboardView; // The surface view to render on
-        final IRajawaliSurfaceRenderer mRenderer; // The renderer
+        final RajawaliVRRenderer mRenderer; // The renderer
 
         public RendererDelegate(IRajawaliSurfaceRenderer renderer, RajawaliCardboardView cardboardView) {
-            mRenderer = renderer;
+            mRenderer = (RajawaliVRRenderer) renderer;
             mRajawaliCardboardView = cardboardView;
             mRenderer.setFrameRate(mRajawaliCardboardView.mRenderMode == IRajawaliSurface.RENDERMODE_WHEN_DIRTY ?
                 mRajawaliCardboardView.mFrameRate : 0);
@@ -213,18 +217,28 @@ public class RajawaliCardboardView extends CardboardView implements IRajawaliSur
         }
 
         @Override
-        public void onSurfaceCreated(GL10 gl, EGLConfig config) {
-            mRenderer.onRenderSurfaceCreated(config, gl, -1, -1);
+        public void onDrawFrame(HeadTransform headTransform, Eye leftEye, Eye rightEye) {
+            mRenderer.onDrawFrame(headTransform, leftEye, rightEye);
         }
 
         @Override
-        public void onSurfaceChanged(GL10 gl, int width, int height) {
-            mRenderer.onRenderSurfaceSizeChanged(gl, width, height);
+        public void onFinishFrame(Viewport viewport) {
+            mRenderer.onFinishFrame(viewport);
         }
 
         @Override
-        public void onDrawFrame(GL10 gl) {
-            mRenderer.onRenderFrame(gl);
+        public void onSurfaceChanged(int width, int height) {
+            mRenderer.onSurfaceChanged(width, height);
+        }
+
+        @Override
+        public void onSurfaceCreated(EGLConfig eglConfig) {
+            mRenderer.onSurfaceCreated(eglConfig);
+        }
+
+        @Override
+        public void onRendererShutdown() {
+            mRenderer.onRendererShutdown();
         }
     }
 }

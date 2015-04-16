@@ -178,9 +178,20 @@ public class RajawaliScene {
 	}
 
     /**
-     * Called by the renderer after {@link RajawaliRenderer#initScene()}.
+     * Called by the renderer before {@link RajawaliRenderer#initScene()}. If you override this method you must call
+	 * through to the super class implementation first.
      */
     public void initScene() {
+		// For various reasons regarding initial setup, we need to make sure that
+		performFrameTasks();
+		synchronized (mNextCameraLock) {
+			//Check if we need to switch the camera, and if so, do it.
+			if (mNextCamera != null) {
+				mCamera = mNextCamera;
+				mCamera.setProjectionMatrix(mRenderer.getViewportWidth(), mRenderer.getViewportHeight());
+				mNextCamera = null;
+			}
+		}
     }
 	
 	/**
@@ -341,6 +352,7 @@ public class RajawaliScene {
         final AFrameTask task = new AFrameTask() {
             @Override
             protected void doTask() {
+				RajLog.i("Setting camera: " + camera + " at position " + location);
                 final Camera old = mCameras.set(location, camera);
                 if (mSceneGraph != null) {
                     //mSceneGraph.removeObject(old);
@@ -992,7 +1004,7 @@ public class RajawaliScene {
 			//Check if we need to switch the camera, and if so, do it.
 			if (mNextCamera != null) {
 				mCamera = mNextCamera;
-                mCamera.setProjectionMatrix(mRenderer.getViewportWidth(), mRenderer.getDefaultViewportHeight());
+                mCamera.setProjectionMatrix(mRenderer.getViewportWidth(), mRenderer.getViewportHeight());
 				mNextCamera = null;
 			}
 		}

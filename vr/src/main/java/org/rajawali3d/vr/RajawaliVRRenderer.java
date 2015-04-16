@@ -1,7 +1,6 @@
 package org.rajawali3d.vr;
 
 import android.content.Context;
-import android.opengl.GLES20;
 import android.view.MotionEvent;
 
 import com.google.vrtoolkit.cardboard.CardboardView;
@@ -10,12 +9,8 @@ import com.google.vrtoolkit.cardboard.HeadTransform;
 import com.google.vrtoolkit.cardboard.Viewport;
 
 import org.rajawali3d.math.Matrix4;
-import org.rajawali3d.math.Quaternion;
 import org.rajawali3d.renderer.RajawaliRenderer;
-import org.rajawali3d.util.ArrayUtils;
 import org.rajawali3d.util.RajLog;
-
-import java.util.Arrays;
 
 import javax.microedition.khronos.egl.EGL10;
 import javax.microedition.khronos.egl.EGLConfig;
@@ -29,21 +24,23 @@ import javax.microedition.khronos.opengles.GL10;
 public abstract class RajawaliVRRenderer extends RajawaliRenderer implements CardboardView.Renderer {
     protected final float[] mFHeadViewMatrix;
     protected final Matrix4 mHeadViewMatrix;
-    private final Quaternion mCameraOrientation;
     private Eye mLastLeftEye;
     private Eye mLastRightEye;
 
     private GL10 mGL;
     private EGLConfig mEGLConfig;
 
-    private final Matrix4 mScratchMatrix;
-
     public RajawaliVRRenderer(Context context) {
         super(context);
         mHeadViewMatrix = new Matrix4();
         mFHeadViewMatrix = new float[16];
-        mCameraOrientation = new Quaternion();
-        mScratchMatrix = new Matrix4();
+        // We need to use a custom camera
+        getCurrentScene().replaceAndSwitchCamera(new RajawaliVRCamera(), 0);
+    }
+
+    @Override
+    public RajawaliVRCamera getCurrentCamera() {
+        return (RajawaliVRCamera) super.getCurrentCamera();
     }
 
     @Override
@@ -56,22 +53,19 @@ public abstract class RajawaliVRRenderer extends RajawaliRenderer implements Car
     @Override
     protected void render(long ellapsedRealtime, double deltaTime) {
         // Render Left Eye
-        RajLog.i("Left Eye View Matrix: " + Arrays.toString(mLastLeftEye.getEyeView()));
         // Calculate the left eye model-view matrix
-        ArrayUtils.convertFloatsToDoubles(mLastLeftEye.getPerspective((float) getCurrentCamera().getNearPlane(),
-                (float) getCurrentCamera().getFarPlane()), mScratchMatrix.getDoubleValues());
-        getCurrentCamera().setProjectionMatrix(mScratchMatrix);
+        getCurrentCamera().setCurrentEye(mLastLeftEye.getType());
         getCurrentScene().render(ellapsedRealtime, deltaTime, mCurrentRenderTarget);
 
         // Render Right Eye
         if (mLastRightEye != null) {
             // We are in stereoscopic rendering
-            RajLog.i("Right Eye View Matrix: " + Arrays.toString(mLastRightEye.getEyeView()));
-            ArrayUtils.convertFloatsToDoubles(mLastRightEye.getPerspective((float) getCurrentCamera().getNearPlane(),
-                (float) getCurrentCamera().getFarPlane()), mScratchMatrix.getDoubleValues());
-            getCurrentCamera().setProjectionMatrix(mScratchMatrix);
+            getCurrentCamera().setCurrentEye(mLastRightEye.getType());
             getCurrentScene().render(ellapsedRealtime, deltaTime, mCurrentRenderTarget);
         }
+
+        mLastLeftEye = null;
+        mLastRightEye = null;
     }
 
     @Override
@@ -88,15 +82,16 @@ public abstract class RajawaliVRRenderer extends RajawaliRenderer implements Car
     public void onDrawFrame(HeadTransform headTransform, Eye leftEye, Eye rightEye) {
         headTransform.getHeadView(mFHeadViewMatrix, 0);
         mHeadViewMatrix.setAll(mFHeadViewMatrix);
-        mCameraOrientation.fromMatrix(mHeadViewMatrix);
+        //mCameraOrientation.fromMatrix(mHeadViewMatrix);
+        //getCurrentCamera().setOrientation(mCameraOrientation);
 
         mLastLeftEye = leftEye;
         mLastRightEye = rightEye;
 
         // Update the camera orientation
-        getCurrentCamera().setOrientation(mCameraOrientation);
+        getCurrentCamera().setTransforms(mHeadViewMatrix, leftEye, rightEye);
 
-        GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT | GLES20.GL_DEPTH_BUFFER_BIT);
+        //GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT | GLES20.GL_DEPTH_BUFFER_BIT);
 
         // Call the frame render so we can update the animations/tasks
         onRenderFrame(mGL);
