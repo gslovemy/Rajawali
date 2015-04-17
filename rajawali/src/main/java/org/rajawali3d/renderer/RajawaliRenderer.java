@@ -66,7 +66,6 @@ public abstract class RajawaliRenderer implements IRajawaliSurfaceRenderer {
     protected final Executor mLoaderExecutor = Executors.newFixedThreadPool(AVAILABLE_CORES == 1 ? 1
             : AVAILABLE_CORES - 1);
 
-    protected static boolean mFogEnabled; // Is camera fog enabled?
     protected static int sMaxLights = 1; // How many lights max?
     public static boolean supportsUIntBuffers = false;
 
@@ -101,9 +100,8 @@ public abstract class RajawaliRenderer implements IRajawaliSurfaceRenderer {
      */
     private boolean mSceneCachingEnabled; //This applies to all scenes
     protected boolean mSceneInitialized; //This applies to all scenes
-    protected boolean mEnableDepthBuffer = true; // Do we use the depth buffer?
     protected RenderTarget mCurrentRenderTarget;
-    private IRajawaliSurface.ANTI_ALIASING_MODE mAntiAliasingConfig;
+    protected IRajawaliSurface.ANTI_ALIASING_MODE mAntiAliasingConfig;
 
     protected final List<RajawaliScene> mScenes; //List of all scenes this renderer is aware of.
     protected final List<RenderTarget> mRenderTargets; //List of all render targets this renderer is aware of.
