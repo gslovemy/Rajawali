@@ -16,16 +16,16 @@ Join the community on G+ to stay up to date on recent releases and learn about i
 
 ## Anchor Steam Tutorials
 
+We do our best to add tutorials
+
 ### Basic Usage
-1. [Using IRajawaliSurface](https://github.com/Rajawali/Rajawali/wiki/Using-RajawaliSurfaceView-and-RajawaliTextureView)
-2. [Materials](https://github.com/Rajawali/Rajawali/wiki/Materials)
-3. [Animation Classes](https://github.com/Rajawali/Rajawali/wiki/Tutorial:-Animation-Classes)
-4. [AWD File Parsing] (https://github.com/Rajawali/Rajawali/wiki/Tutorial:-AWD-File-Parsing)
-5. [Using RajawaliScene] (https://github.com/Rajawali/Rajawali/wiki/Tutorial:-Using-RajawaliScene)
-6. [Creating a Texture Atlas] (https://github.com/Rajawali/Rajawali/wiki/Tutorial:-Texture-Atlas)
-7. [Creating a Day Dream](https://github.com/Rajawali/Rajawali/wiki/Tutorial-30-Creating-a-Day-Dream)
-8. [Using Canvas for Textures] (https://github.com/Rajawali/Rajawali/wiki/Tutorial-32-Using-Canvas-for-Textures)
-9. [Scene Frame Callbacks] (https://github.com/Rajawali/Rajawali/wiki/Scene-Frame-Callbacks)
-10. [Async Loaders] (https://github.com/Rajawali/Rajawali/wiki/Async-Loaders)
+1. [Installation Guide](https://github.com/Rajawali/Rajawali/blob/master/docs/installation_guide.md)
+2. [Basic Scene](https://github.com/Rajawali/Rajawali/blob/master/docs/basic_scene.md)
+3. [Materials](https://github.com/Rajawali/Rajawali/blob/master/docs/materials.md)
+4. [Animation Classes](https://github.com/Rajawali/Rajawali/blob/master/docs/animations.md)
 
 ### Advanced Features
+1. [Choosing an IRajawaliSurface](https://github.com/Rajawali/Rajawali/blob/master/docs/choosing_irajawalisurface.md)
+2. [Scene Frame Callbacks](https://github.com/Rajawali/Rajawali/blob/master/docs/scene_frame_callbacks.md)
+3. [Async Loaders](https://github.com/Rajawali/Rajawali/blob/master/docs/async_loaders.md)
+4. [Using a Texture Atlas](https://github.com/Rajawali/Rajawali/blob/master/docs/texture_atlas.md)

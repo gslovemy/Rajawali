@@ -1,5 +1,6 @@
 # Materials
-(Just dumping information here at the moment, this will be more coherent)
+
+Rajawali has a material builder system which allows for the easy application of many common material types and attributes. The various combinations of all of these effects are too numerous to demonstrate, but below are several effects which can be accomplished using the material builder system. For more tailored effects, you can always load your own GLSL. This is demoed in an advanced tutorial.
 
 ## Creating a color material without using lighting
 
