@@ -1,11 +1,11 @@
 /**
  * Copyright 2013 Dennis Ippel
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
  * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
  * specific language governing permissions and limitations under the License.
@@ -18,41 +18,43 @@ import org.rajawali3d.bounds.IBoundingVolume;
 import org.rajawali3d.math.Matrix4;
 import org.rajawali3d.math.Quaternion;
 import org.rajawali3d.math.vector.Vector3;
+import org.rajawali3d.util.RajLog;
 
 public class Camera extends ATransformable3D {
 
-	protected final Object mFrustumLock = new Object();
+    protected final Object mFrustumLock = new Object();
 
-	/**
-	 * The following members are all guarded by {@link #mFrustumLock}
-	 */
-	protected final Matrix4 mViewMatrix = new Matrix4();
-	protected final Matrix4 mProjMatrix = new Matrix4();
-	protected double mNearPlane = 1.0;
-	protected double mFarPlane = 120.0;
-	protected double mFieldOfView = 45.0;
-	protected int mLastWidth;
-	protected int mLastHeight;
-	protected boolean mCameraDirty = true;
-	protected Frustum mFrustum;
-	protected BoundingBox mBoundingBox = new BoundingBox();
-	protected Vector3[] mFrustumCorners;
-	protected Quaternion mLocalOrientation;
-    protected boolean mIsInitialized;
-	/**
-	 * End guarded members
-	 */
-		
-	public Camera() {
-		super();
-		mLocalOrientation = Quaternion.getIdentity();
-		mIsCamera = true;
-		mFrustum = new Frustum();
-		mFrustumCorners = new Vector3[8];
-        for(int i=0; i<8; i++) {
+    /**
+     * The following members are all guarded by {@link #mFrustumLock}
+     */
+    protected final Matrix4 mViewMatrix  = new Matrix4();
+    protected final Matrix4 mProjMatrix  = new Matrix4();
+    protected       double  mNearPlane   = 1.0;
+    protected       double  mFarPlane    = 120.0;
+    protected       double  mFieldOfView = 45.0;
+    protected int mLastWidth;
+    protected int mLastHeight;
+    protected boolean mCameraDirty = true;
+    protected Frustum mFrustum;
+    protected BoundingBox mBoundingBox = new BoundingBox();
+    protected Vector3[]  mFrustumCorners;
+    protected Quaternion mLocalOrientation;
+    protected boolean    mIsInitialized;
+
+    /**
+     * End guarded members
+     */
+
+    public Camera() {
+        super();
+        mLocalOrientation = Quaternion.getIdentity();
+        mIsCamera = true;
+        mFrustum = new Frustum();
+        mFrustumCorners = new Vector3[8];
+        for (int i = 0; i < 8; i++) {
             mFrustumCorners[i] = new Vector3();
         }
-	}
+    }
 
     @Override
     public boolean onRecalculateModelMatrix(Matrix4 parentMatrix) {
@@ -81,8 +83,8 @@ public class Camera extends ATransformable3D {
         mLocalOrientation.identity();
     }
 
-	public Matrix4 getViewMatrix() {
-		synchronized (mFrustumLock) {
+    public Matrix4 getViewMatrix() {
+        synchronized (mFrustumLock) {
             // Create an inverted orientation. This is because the view matrix is the
             // inverse operation of a model matrix
             mTmpOrientation.setAll(mOrientation);
@@ -117,20 +119,20 @@ public class Camera extends ATransformable3D {
             matrix[Matrix4.M32] = 0;
 
             matrix[Matrix4.M03] = -mPosition.x * matrix[Matrix4.M00]
-                + -mPosition.y * matrix[Matrix4.M01] + -mPosition.z * matrix[Matrix4.M02];
+                                  + -mPosition.y * matrix[Matrix4.M01] + -mPosition.z * matrix[Matrix4.M02];
             matrix[Matrix4.M13] = -mPosition.x * matrix[Matrix4.M10]
-                + -mPosition.y * matrix[Matrix4.M11] + -mPosition.z * matrix[Matrix4.M12];
+                                  + -mPosition.y * matrix[Matrix4.M11] + -mPosition.z * matrix[Matrix4.M12];
             matrix[Matrix4.M23] = -mPosition.x * matrix[Matrix4.M20]
-                + -mPosition.y * matrix[Matrix4.M21] + -mPosition.z * matrix[Matrix4.M22];
+                                  + -mPosition.y * matrix[Matrix4.M21] + -mPosition.z * matrix[Matrix4.M22];
             matrix[Matrix4.M33] = 1;
 
             mTmpOrientation.setAll(mLocalOrientation).inverse();
             mViewMatrix.leftMultiply(mTmpOrientation.toRotationMatrix());
             //mViewMatrix.rotate(mTmpOrientation);
 
-			return mViewMatrix;
-		}
-	}
+            return mViewMatrix;
+        }
+    }
 
     public void getFrustumCorners(Vector3[] points) {
         getFrustumCorners(points, false);
@@ -140,131 +142,148 @@ public class Camera extends ATransformable3D {
         getFrustumCorners(points, transformed, false);
     }
 
-	public void getFrustumCorners(Vector3[] points, boolean transformed, boolean inverse) {
-		if(mCameraDirty) {
-			double aspect = mLastWidth / (double)mLastHeight;
-			double nearHeight = 2.0 * Math.tan(mFieldOfView / 2.0) * mNearPlane;
-			double nearWidth = nearHeight * aspect;
-			
-			double farHeight = 2.0 * Math.tan(mFieldOfView / 2.0) * mFarPlane;
-			double farWidth = farHeight * aspect;
-			
-			// near plane, top left
-			mFrustumCorners[0].setAll(nearWidth / -2, nearHeight / 2, mNearPlane);
-			// near plane, top right
-			mFrustumCorners[1].setAll(nearWidth / 2, nearHeight / 2, mNearPlane);
-			// near plane, bottom right
-			mFrustumCorners[2].setAll(nearWidth / 2, nearHeight / -2, mNearPlane);
-			// near plane, bottom left
-			mFrustumCorners[3].setAll(nearWidth / -2, nearHeight / -2, mNearPlane);
-			// far plane, top left
-			mFrustumCorners[4].setAll(farWidth / -2, farHeight / 2, mFarPlane);
-			// far plane, top right
-			mFrustumCorners[5].setAll(farWidth / 2, farHeight / 2, mFarPlane);
-			// far plane, bottom right
-			mFrustumCorners[6].setAll(farWidth / 2, farHeight / -2, mFarPlane);
-			// far plane, bottom left
-			mFrustumCorners[7].setAll(farWidth / -2, farHeight / -2, mFarPlane);
-			mCameraDirty = false;
-		}
+    public void getFrustumCorners(Vector3[] points, boolean transformed, boolean inverse) {
+        if (mCameraDirty) {
+            double aspect = mLastWidth / (double) mLastHeight;
+            double nearHeight = 2.0 * Math.tan(mFieldOfView / 2.0) * mNearPlane;
+            double nearWidth = nearHeight * aspect;
 
-        if(transformed) {
+            double farHeight = 2.0 * Math.tan(mFieldOfView / 2.0) * mFarPlane;
+            double farWidth = farHeight * aspect;
+
+            // near plane, top left
+            mFrustumCorners[0].setAll(nearWidth / -2, nearHeight / 2, mNearPlane);
+            // near plane, top right
+            mFrustumCorners[1].setAll(nearWidth / 2, nearHeight / 2, mNearPlane);
+            // near plane, bottom right
+            mFrustumCorners[2].setAll(nearWidth / 2, nearHeight / -2, mNearPlane);
+            // near plane, bottom left
+            mFrustumCorners[3].setAll(nearWidth / -2, nearHeight / -2, mNearPlane);
+            // far plane, top left
+            mFrustumCorners[4].setAll(farWidth / -2, farHeight / 2, mFarPlane);
+            // far plane, top right
+            mFrustumCorners[5].setAll(farWidth / 2, farHeight / 2, mFarPlane);
+            // far plane, bottom right
+            mFrustumCorners[6].setAll(farWidth / 2, farHeight / -2, mFarPlane);
+            // far plane, bottom left
+            mFrustumCorners[7].setAll(farWidth / -2, farHeight / -2, mFarPlane);
+            mCameraDirty = false;
+        }
+
+        if (transformed) {
             mMMatrix.identity();
-            if(inverse)
+            if (inverse) {
                 mMMatrix.scale(-1);
+            }
             mMMatrix.translate(mPosition).rotate(mOrientation);
         }
 
         for (int i = 0; i < 8; ++i) {
             points[i].setAll(mFrustumCorners[i]);
-            if(transformed) {
+            if (transformed) {
                 points[i].multiply(mMMatrix);
             }
         }
-	}
-	
-	public void updateFrustum(Matrix4 invVPMatrix) {
-		synchronized (mFrustumLock) {
-			mFrustum.update(invVPMatrix);
-		}
-	}
-	
-	public Frustum getFrustum() {
+    }
+
+    public void updateFrustum(Matrix4 invVPMatrix) {
+        synchronized (mFrustumLock) {
+            mFrustum.update(invVPMatrix);
+        }
+    }
+
+    public Frustum getFrustum() {
         synchronized (mFrustumLock) {
             return mFrustum;
         }
-	}
+    }
 
-	public void setProjectionMatrix(int width, int height) {
-		synchronized (mFrustumLock) {
-			if(mLastWidth != width || mLastHeight != height) mCameraDirty = true;
-			mLastWidth = width;
-			mLastHeight = height;
-			double ratio = ((double) width) / ((double) height);
-			mProjMatrix.setToPerspective(mNearPlane, mFarPlane, mFieldOfView, ratio);
+    public void setProjectionMatrix(Matrix4 matrix) {
+        synchronized (mFrustumLock) {
+            mProjMatrix.setAll(matrix);
             mIsInitialized = true;
-		}
-	}
-	
-	public void setProjectionMatrix(double fieldOfView, int width, int height)
-	{
-		synchronized (mFrustumLock) {
-			mFieldOfView = fieldOfView;
-			setProjectionMatrix(width, height);
-		}		
-	}
+        }
+    }
 
-	public void setProjectionMatrix(Matrix4 from) {
-		mProjMatrix.setAll(from);
-	}
+    public void setProjectionMatrix(int width, int height) {
+        synchronized (mFrustumLock) {
+            if (mLastWidth != width || mLastHeight != height) {
+                mCameraDirty = true;
+            }
+            mLastWidth = width;
+            mLastHeight = height;
+            double ratio = ((double) width) / ((double) height);
+            mProjMatrix.setToPerspective(mNearPlane, mFarPlane, mFieldOfView, ratio);
+            mIsInitialized = true;
+        }
+    }
 
-	public Matrix4 getProjectionMatrix() {
-		synchronized (mFrustumLock) {
-			return mProjMatrix;
-		}
-	}
+    public void setProjectionMatrix(double fieldOfView, int width, int height) {
+        synchronized (mFrustumLock) {
+            mFieldOfView = fieldOfView;
+            setProjectionMatrix(width, height);
+        }
+    }
 
-	public double getNearPlane() {
-		synchronized (mFrustumLock) {
-			return mNearPlane;
-		}
-	}
+    public void updatePerspective(double left, double right, double bottom, double top) {
+        updatePerspective(left + right, bottom + top);
+    }
 
-	public void setNearPlane(double nearPlane) {
-		synchronized (mFrustumLock) {
-			mNearPlane = nearPlane;
-			mCameraDirty = true;
-			setProjectionMatrix(mLastWidth, mLastHeight);
-		}
-	}
+    public void updatePerspective(double fovX, double fovY) {
+        synchronized (mFrustumLock) {
+            double ratio = fovX / fovY;
+            mFieldOfView = fovX;
+            mProjMatrix.setToPerspective(mNearPlane, mFarPlane, fovX, ratio);
+        }
+    }
 
-	public double getFarPlane() {
-		synchronized (mFrustumLock) {
-			return mFarPlane;
-		}
-	}
+    public Matrix4 getProjectionMatrix() {
+        synchronized (mFrustumLock) {
+            return mProjMatrix;
+        }
+    }
 
-	public void setFarPlane(double farPlane) {
-		synchronized (mFrustumLock) {
-			mFarPlane = farPlane;
-			mCameraDirty = true;
-			setProjectionMatrix(mLastWidth, mLastHeight);
-		}
-	}
+    public double getNearPlane() {
+        synchronized (mFrustumLock) {
+            return mNearPlane;
+        }
+    }
 
-	public double getFieldOfView() {
-		synchronized (mFrustumLock) {
-			return mFieldOfView;
-		}
-	}
+    public void setNearPlane(double nearPlane) {
+        synchronized (mFrustumLock) {
+            mNearPlane = nearPlane;
+            mCameraDirty = true;
+            setProjectionMatrix(mLastWidth, mLastHeight);
+        }
+    }
 
-	public void setFieldOfView(double fieldOfView) {
-		synchronized (mFrustumLock) {
-			mFieldOfView = fieldOfView;
-			mCameraDirty = true;
-			setProjectionMatrix(mLastWidth, mLastHeight);
-		}
-	}
+    public double getFarPlane() {
+        synchronized (mFrustumLock) {
+            return mFarPlane;
+        }
+    }
+
+    public void setFarPlane(double farPlane) {
+        synchronized (mFrustumLock) {
+            mFarPlane = farPlane;
+            mCameraDirty = true;
+            setProjectionMatrix(mLastWidth, mLastHeight);
+        }
+    }
+
+    public double getFieldOfView() {
+        synchronized (mFrustumLock) {
+            return mFieldOfView;
+        }
+    }
+
+    public void setFieldOfView(double fieldOfView) {
+        synchronized (mFrustumLock) {
+            mFieldOfView = fieldOfView;
+            mCameraDirty = true;
+            setProjectionMatrix(mLastWidth, mLastHeight);
+        }
+    }
 
     public boolean isInitialized() {
         synchronized (mFrustumLock) {
@@ -272,29 +291,29 @@ public class Camera extends ATransformable3D {
         }
     }
 
-	/*
-	 * (non-Javadoc)
-	 * @see rajawali.ATransformable3D#getTransformedBoundingVolume()
-	 */
-	@Override
-	public IBoundingVolume getTransformedBoundingVolume() {
-		synchronized (mFrustumLock) {
-			// TODO create an actual bounding box
-			return mBoundingBox;
-		}
-	}
-	
-	public Camera clone() {
-		Camera cam = new Camera();
-		cam.setFarPlane(mFarPlane);
-		cam.setFieldOfView(mFieldOfView);
-		cam.setGraphNode(mGraphNode, mInsideGraph);
-		cam.setLookAt(mLookAt.clone());
-		cam.setNearPlane(mNearPlane);
-		cam.setOrientation(mOrientation.clone());
-		cam.setPosition(mPosition.clone());
-		cam.setProjectionMatrix(mLastWidth, mLastHeight);
+    /*
+     * (non-Javadoc)
+     * @see rajawali.ATransformable3D#getTransformedBoundingVolume()
+     */
+    @Override
+    public IBoundingVolume getTransformedBoundingVolume() {
+        synchronized (mFrustumLock) {
+            // TODO create an actual bounding box
+            return mBoundingBox;
+        }
+    }
 
-		return cam;
-	}
+    public Camera clone() {
+        Camera cam = new Camera();
+        cam.setFarPlane(mFarPlane);
+        cam.setFieldOfView(mFieldOfView);
+        cam.setGraphNode(mGraphNode, mInsideGraph);
+        cam.setLookAt(mLookAt.clone());
+        cam.setNearPlane(mNearPlane);
+        cam.setOrientation(mOrientation.clone());
+        cam.setPosition(mPosition.clone());
+        cam.setProjectionMatrix(mLastWidth, mLastHeight);
+
+        return cam;
+    }
 }

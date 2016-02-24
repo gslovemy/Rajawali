@@ -54,6 +54,7 @@ public abstract class Animation extends Playable {
 		setState(State.PAUSED);
 		mElapsedTime = 0;
 		mIsStarted = false;
+        mDelayCount = 0;
 	}
 	
 	/**
@@ -350,4 +351,7 @@ public abstract class Animation extends Playable {
 			mAnimationListeners.get(i).onAnimationUpdate(this, interpolatedTime);
 	}
 
+    public double getInterpolatedTime() {
+        return mInterpolatedTime;
+    }
 }
