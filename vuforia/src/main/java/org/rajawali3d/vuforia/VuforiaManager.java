@@ -1,15 +1,13 @@
 package org.rajawali3d.vuforia;
 
-import android.app.ActionBar;
 import android.app.Activity;
-import android.app.AlertDialog;
-import android.content.DialogInterface;
 import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.util.DisplayMetrics;
-import android.view.ViewGroup;
 import android.view.WindowManager;
 import com.qualcomm.QCAR.QCAR;
 import org.rajawali3d.renderer.ISurfaceRenderer;
@@ -17,7 +15,7 @@ import org.rajawali3d.util.RajLog;
 import org.rajawali3d.view.ISurface;
 import org.rajawali3d.view.SurfaceView;
 
-public abstract class RajawaliVuforiaActivity extends Activity {
+public class VuforiaManager {
     protected static int TRACKER_TYPE_IMAGE  = 0;
     protected static int TRACKER_TYPE_MARKER = 1;
 
@@ -60,12 +58,32 @@ public abstract class RajawaliVuforiaActivity extends Activity {
     private int mScreenOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE;
     private InitQCARTask mInitQCARTask;
     private boolean mUseCloudRecognition = false;
-    private InitCloudRecoTask mInitCloudRecoTask;
-    private boolean           mRajawaliIsInitialized;
+    private       InitCloudRecoTask mInitCloudRecoTask;
+    private       boolean           mRajawaliIsInitialized;
+    private final VuforiaConsumer   mConsumer;
 
     static {
         loadLibrary(NATIVE_LIB_VUFORIA);
         loadLibrary(NATIVE_LIB_RAJAWALI_VUFORIA);
+    }
+
+    public interface VuforiaConsumer {
+
+        @NonNull
+        Activity getActivity();
+
+        @NonNull
+        ISurface getRenderSurface();
+
+        void initialize();
+
+        void onPostCloudRecoInit(boolean success, @Nullable String message);
+
+        void onPostQcarInit(boolean success, @Nullable String message);
+    }
+
+    public VuforiaManager(@NonNull VuforiaConsumer consumer) {
+        mConsumer = consumer;
     }
 
     /**
@@ -86,8 +104,7 @@ public abstract class RajawaliVuforiaActivity extends Activity {
 
 
         protected void onPostExecute(Boolean result) {
-            RajLog.d("InitCloudRecoTask::onPostExecute: execution "
-                     + (result ? "successful" : "failed"));
+            RajLog.d("InitCloudRecoTask::onPostExecute: execution " + (result ? "successful" : "failed"));
 
             if (result) {
                 // Done loading the tracker, update application status:
@@ -95,35 +112,15 @@ public abstract class RajawaliVuforiaActivity extends Activity {
             } else {
                 updateApplicationStatus(APPSTATUS_INITED);
                 // Create dialog box for display error:
-                AlertDialog dialogError = new AlertDialog.Builder(
-                        RajawaliVuforiaActivity.this).create();
-
-                dialogError.setButton
-                        (
-                                DialogInterface.BUTTON_POSITIVE,
-                                "Close",
-                                new DialogInterface.OnClickListener() {
-                                    public void onClick(DialogInterface dialog, int which) {
-                                        //                          System.exit(1);
-                                    }
-                                }
-                        );
-
-
                 String logMessage;
-
                 if (mInitResult == QCAR.INIT_DEVICE_NOT_SUPPORTED) {
                     logMessage = "Failed to initialize QCAR because this " +
                                  "device is not supported.";
                 } else {
                     logMessage = "Failed to initialize CloudReco.";
                 }
-
-                RajLog.e("InitQCARTask::onPostExecute: " + logMessage +
-                         " Exiting.");
-
-                dialogError.setMessage(logMessage);
-                dialogError.show();
+                RajLog.e("InitQCARTask::onPostExecute: " + logMessage + " Exiting.");
+                mConsumer.onPostCloudRecoInit(result, logMessage);
             }
         }
     }
@@ -136,7 +133,7 @@ public abstract class RajawaliVuforiaActivity extends Activity {
 
         protected Boolean doInBackground(Void... params) {
             synchronized (mShutdownLock) {
-                QCAR.setInitParameters(RajawaliVuforiaActivity.this, QCAR.GL_20);
+                QCAR.setInitParameters(mConsumer.getActivity(), QCAR.GL_20);
 
                 do {
                     mProgressValue = QCAR.init();
@@ -153,56 +150,30 @@ public abstract class RajawaliVuforiaActivity extends Activity {
 
         protected void onPostExecute(Boolean result) {
             if (result) {
-                RajLog.d("InitQCARTask::onPostExecute: QCAR " +
-                         "initialization successful");
-
+                RajLog.d("InitQCARTask::onPostExecute: QCAR " + "initialization successful");
                 updateApplicationStatus(APPSTATUS_INIT_TRACKER);
             } else {
-                AlertDialog dialogError = new AlertDialog.Builder(
-                        RajawaliVuforiaActivity.this
-                ).create();
-
-                dialogError.setButton
-                        (
-                                DialogInterface.BUTTON_POSITIVE,
-                                "Close",
-                                new DialogInterface.OnClickListener() {
-                                    public void onClick(DialogInterface dialog, int which) {
-                                        System.exit(1);
-                                    }
-                                }
-                        );
-
                 String logMessage;
-
                 if (mProgressValue == QCAR.INIT_DEVICE_NOT_SUPPORTED) {
-                    logMessage = "Failed to initialize QCAR because this " +
-                                 "device is not supported.";
+                    logMessage = "Failed to initialize QCAR because this " + "device is not supported.";
                 } else {
                     logMessage = "Failed to initialize QCAR.";
                 }
-
-                RajLog.e("InitQCARTask::onPostExecute: " + logMessage +
-                         " Exiting.");
-
-                dialogError.setMessage(logMessage);
-                dialogError.show();
+                RajLog.e("InitQCARTask::onPostExecute: " + logMessage + " Exiting.");
+                mConsumer.onPostQcarInit(result, logMessage);
             }
         }
     }
 
-    @Override
     public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
         storeScreenDimensions();
     }
 
-    protected void startVuforia() {
+    public void startVuforia() {
         updateApplicationStatus(APPSTATUS_INIT_APP);
     }
 
-    protected void onResume() {
-        super.onResume();
+    public void onResume() {
         QCAR.onResume();
 
         if (mAppStatus == APPSTATUS_CAMERA_STOPPED) {
@@ -213,8 +184,6 @@ public abstract class RajawaliVuforiaActivity extends Activity {
     ;
 
     public void onConfigurationChanged(Configuration config) {
-        super.onConfigurationChanged(config);
-
         storeScreenDimensions();
 
         if (QCAR.isInitialized() && (mAppStatus == APPSTATUS_CAMERA_RUNNING)) {
@@ -222,18 +191,14 @@ public abstract class RajawaliVuforiaActivity extends Activity {
         }
     }
 
-    protected void onPause() {
-        super.onPause();
-
+    public void onPause() {
         if (mAppStatus == APPSTATUS_CAMERA_RUNNING) {
             updateApplicationStatus(APPSTATUS_CAMERA_STOPPED);
         }
         QCAR.onPause();
     }
 
-    protected void onDestroy() {
-        super.onDestroy();
-
+    public void onDestroy() {
         if (mInitQCARTask != null &&
             mInitQCARTask.getStatus() != InitQCARTask.Status.FINISHED) {
             mInitQCARTask.cancel(true);
@@ -260,7 +225,7 @@ public abstract class RajawaliVuforiaActivity extends Activity {
     private void storeScreenDimensions() {
         // Query display dimensions:
         DisplayMetrics metrics = new DisplayMetrics();
-        getWindowManager().getDefaultDisplay().getMetrics(metrics);
+        mConsumer.getActivity().getWindowManager().getDefaultDisplay().getMetrics(metrics);
         mScreenWidth = metrics.widthPixels;
         mScreenHeight = metrics.heightPixels;
     }
@@ -328,7 +293,7 @@ public abstract class RajawaliVuforiaActivity extends Activity {
                 }
 
                 if (!mRajawaliIsInitialized) {
-                    initRajawali();
+                    initRajawali(mConsumer.getRenderSurface());
                     mRajawaliIsInitialized = true;
                 }
                 break;
@@ -339,15 +304,13 @@ public abstract class RajawaliVuforiaActivity extends Activity {
     }
 
     private void initApplication() {
-        setRequestedOrientation(mScreenOrientation);
-        setActivityPortraitMode(
-                mScreenOrientation == ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+        mConsumer.getActivity().setRequestedOrientation(mScreenOrientation);
+        setActivityPortraitMode(mScreenOrientation == ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
         storeScreenDimensions();
 
-        getWindow().setFlags(
-                WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON,
-                WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        mConsumer.getActivity().getWindow().setFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON,
+                                                     WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
     }
 
     public void setScreenOrientation(final int screenOrientation) {
@@ -366,24 +329,19 @@ public abstract class RajawaliVuforiaActivity extends Activity {
         initApplicationNative(mScreenWidth, mScreenHeight);
     }
 
-    protected void initRajawali() {
+    protected void initRajawali(@NonNull ISurface surface) {
         if (mRenderer == null) {
             RajLog.e("initRajawali(): You need so set a renderer first.");
         }
-
-        mSurfaceView = new SurfaceView(this);
-        mSurfaceView.setFrameRate(60.0);
-        mSurfaceView.setRenderMode(ISurface.RENDERMODE_WHEN_DIRTY);
-        mSurfaceView.setSurfaceRenderer(mRenderer);
-
-        addContentView(mSurfaceView, new ActionBar.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT));
+        surface.setSurfaceRenderer(mRenderer);
+        mConsumer.initialize();
     }
 
     public void setRenderer(ISurfaceRenderer renderer) {
         mRenderer = renderer;
     }
 
-    protected void useCloudRecognition(boolean value) {
+    public void useCloudRecognition(boolean value) {
         mUseCloudRecognition = value;
     }
 
@@ -431,9 +389,9 @@ public abstract class RajawaliVuforiaActivity extends Activity {
 
     public native String getMetadataNative();
 
-    protected native boolean startExtendedTracking();
+    public native boolean startExtendedTracking();
 
-    protected native boolean stopExtendedTracking();
+    public native boolean stopExtendedTracking();
 
     /**
      * A helper for loading native libraries stored in "libs/armeabi*".

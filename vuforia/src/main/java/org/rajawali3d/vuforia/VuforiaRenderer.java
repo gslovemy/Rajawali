@@ -18,14 +18,14 @@ import javax.microedition.khronos.opengles.GL10;
 /**
  *
  */
-public abstract class RajawaliVuforiaRenderer extends Renderer {
+public abstract class VuforiaRenderer extends Renderer {
 	private   Vector3      mPosition;
 	private   Quaternion   mOrientation;
 	protected ScreenQuad   mBackgroundQuad;
 	protected RenderTarget mBackgroundRenderTarget;
 	private   double[]     mModelViewMatrix;
 	private int mI = 0;
-	private RajawaliVuforiaActivity mActivity;
+	private VuforiaManager mVuforiaManager;
 
 	public native void initRendering();
 	public native void updateRendering(int width, int height);
@@ -35,9 +35,9 @@ public abstract class RajawaliVuforiaRenderer extends Renderer {
 	public native int getVideoWidth();
 	public native int getVideoHeight();
 
-	public RajawaliVuforiaRenderer(Context context) {
+	public VuforiaRenderer(Context context, VuforiaManager manager) {
 		super(context);
-		mActivity = (RajawaliVuforiaActivity)context;
+		mVuforiaManager = manager;
 		mPosition = new Vector3();
 		mOrientation = new Quaternion();
 		getCurrentCamera().setNearPlane(10);
@@ -45,6 +45,7 @@ public abstract class RajawaliVuforiaRenderer extends Renderer {
 		mModelViewMatrix = new double[16];
 	}
 
+	@Override
 	public void onRenderSurfaceCreated(EGLConfig config, GL10 gl, int width, int height) {
         RajLog.i("onRenderSurfaceCreated");
 		super.onRenderSurfaceCreated(config, gl, width, height);
@@ -52,6 +53,7 @@ public abstract class RajawaliVuforiaRenderer extends Renderer {
 		QCAR.onSurfaceCreated();
 	}
 
+	@Override
 	public void onRenderSurfaceSizeChanged(GL10 gl, int width, int height) {
         RajLog.i("onRenderSurfaceSizeChanged " + width + ", " + height);
 		super.onRenderSurfaceSizeChanged(gl, width, height);
@@ -72,7 +74,7 @@ public abstract class RajawaliVuforiaRenderer extends Renderer {
 			}
 
 			mBackgroundQuad = new ScreenQuad();
-			if(mActivity.getScreenOrientation() == ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE)
+			if(mVuforiaManager.getScreenOrientation() == ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE)
 				mBackgroundQuad.setScaleY((float)height / (float)getVideoHeight());
 			else
 				mBackgroundQuad.setScaleX((float)width / (float)getVideoWidth());
@@ -95,7 +97,7 @@ public abstract class RajawaliVuforiaRenderer extends Renderer {
 		copyFloatToDoubleMatrix(modelViewMatrix, mModelViewMatrix);
 		mOrientation.fromRotationMatrix(mModelViewMatrix);
 
-		if(mActivity.getScreenOrientation() == ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE)
+		if(mVuforiaManager.getScreenOrientation() == ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE)
 		{
 			mPosition.setAll(modelViewMatrix[12], -modelViewMatrix[13],
 					-modelViewMatrix[14]);
