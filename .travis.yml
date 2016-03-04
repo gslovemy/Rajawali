@@ -9,10 +9,16 @@ jdk:
 android:
   components:
   - tools
+  - ndk
   - build-tools-23.0.2
   - android-23
   - extra-android-m2repository
 script:
+# Get Android NDK
+- if [ `uname -m` = x86_64]; then wget http://dl.google.com/android/ndk/android-ndk-r10d-linux-x86_64.bin -O ndk.bin; else wget http://dl.google.com/android/ndk/android-ndk-r10d-linux-x86.bin -O ndk.bin; fi
+- chmod a+x ndk.bin
+- ./ndk.bin
+
 - echo "Travis branch is $TRAVIS_BRANCH"
 - echo "Travis branch is in pull request? $TRAVIS_PULL_REQUEST"
 - echo "Travis tag $TRAVIS_TAG"
