@@ -44,3 +44,5 @@ local.properties~
 .idea/
 rajawali_secret.gpg
 secring.gpg
+vuforia/src/main/obj/
+vuforia/src/main/libs/armeabi-v7a/libRajawaliVuforia.so
