@@ -26,11 +26,15 @@ android {
         targetSdkVersion 23
         versionCode 1
         versionName "1.0"
-    }
 
-    sourceSets.main {
-        jniLibs.srcDir 'src/main/libs'
-        jni.srcDirs = [] //disable automatic ndk-build call
+        ndk {
+            moduleName "RajawaliVuforia"
+            abiFilters "armeabi-v7a"
+            cFlags "-v -DUSE_OPENGL_ES_2_0 -Wno-write-strings -Wno-psabi " +
+                    "-Ivuforia-sdk-android-3-0-9/build/include"
+            ldFlags "-Lsrc/main/jniLibs"
+            ldLibs "EGL", "GLESv2", "log", "Vuforia"
+        }
     }
 
     compileOptions {
