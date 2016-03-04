@@ -1,5 +1,4 @@
 apply plugin: 'com.android.library'
-apply plugin: 'signing'
 
 String getVersionString() {
     String v = VERSION_NAME.replaceAll(".(0)\$", "." + buildNumber())
